@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,6 +19,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Aspect
 @Component
 @NoArgsConstructor(access = PRIVATE)
@@ -36,6 +38,7 @@ public class CacheableAop {
             cacheStore.put(cacheKey, result);
             return result;
         } else {
+            log.info("cache hit {}, {}", cacheKey, cachedValue);
             return cachedValue;
         }
     }
@@ -44,7 +47,10 @@ public class CacheableAop {
         final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         final Method method = signature.getMethod();
         final Cacheable cacheable = AnnotationUtils.getAnnotation(method, Cacheable.class);
-        return cacheable.cacheName();
+        return String.format("%s:%s:%s",
+                signature.getDeclaringTypeName(),
+                method.getName(),
+                cacheable.cacheName());
     }
 
     private String generateKey(ProceedingJoinPoint joinPoint) {

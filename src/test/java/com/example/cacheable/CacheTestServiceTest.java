@@ -3,6 +3,7 @@ package com.example.cacheable;
 
 import static org.assertj.core.api.Assertions.*;
 
+import com.example.support.CountComponent;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -16,11 +17,11 @@ class CacheTestServiceTest {
     private CacheTestService cacheTestService;
 
     @Autowired
-    private CacheTestRepository cacheTestRepository;
+    private CountComponent countComponent;
 
     @AfterEach
     void init(){
-        cacheTestRepository.initializeCount();
+        countComponent.initializeCount();
     }
 
     @Test
@@ -29,11 +30,12 @@ class CacheTestServiceTest {
         List<String> actual = cacheTestService.findAll();
         List<String> cacheActual1 = cacheTestService.findAll();
         List<String> cacheActual2 = cacheTestService.findAll();
-        Integer countActual = cacheTestRepository.getCount();
+
+        Integer countActual = countComponent.getCount();
 
         //then
-        assertThat(actual).
-                containsAll(cacheActual1)
+        assertThat(actual)
+                .containsAll(cacheActual1)
                 .containsAll(cacheActual2);
         assertThat(countActual).isEqualTo(1);
     }
@@ -47,7 +49,7 @@ class CacheTestServiceTest {
         String zezeActual = cacheTestService.findByName("zeze");
         String zezeJasonActual = cacheTestService.findByName("zeze");
 
-        Integer countActual = cacheTestRepository.getCount();
+        Integer countActual = countComponent.getCount();
 
         //then
         assertThat(jasonActual).isEqualTo(cacheJasonActual);
